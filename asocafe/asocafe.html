@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASO ROOTS CAFE</title>
+
+  <!-- Tailwind CSS (スタイリング用) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM (動作ライブラリ) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel (JSXをブラウザで変換) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* 縦書き対応のカスタムCSS */
+    .writing-vertical-md {
+      writing-mode: horizontal-tb;
+    }
+
+    @media (min-width: 768px) {
+      .writing-vertical-md {
+        writing-mode: vertical-rl;
+      }
+    }
+
+    /* Googleサイトのiframe内でスクロールバーを綺麗にする */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- アイコンコンポーネント (Lucideの代わり) ---
+    const IconWrapper = ({ children, size = 24, className = "" }) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        {children}
+      </svg>
+    );
+
+    const MenuIcon = (props) => <IconWrapper {...props}><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></IconWrapper>;
+    const XIcon = (props) => <IconWrapper {...props}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></IconWrapper>;
+    const MapPinIcon = (props) => <IconWrapper {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></IconWrapper>;
+    const CoffeeIcon = (props) => <IconWrapper {...props}><path d="M17 8h1a4 4 0 1 1 0 8h-1" /><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" /><line x1="6" x2="6" y1="2" y2="4" /><line x1="10" x2="10" y1="2" y2="4" /><line x1="14" x2="14" y1="2" y2="4" /></IconWrapper>;
+    const InstagramIcon = (props) => <IconWrapper {...props}><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></IconWrapper>;
+    const ChevronRightIcon = (props) => <IconWrapper {...props}><path d="m9 18 6-6-6-6" /></IconWrapper>;
+    const ArrowUpIcon = (props) => <IconWrapper {...props}><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></IconWrapper>;
+
+    // --- メインアプリ ---
+    const App = () => {
+      const [isMenuOpen, setIsMenuOpen] = useState(false);
+      const [scrolled, setScrolled] = useState(false);
+
+      useEffect(() => {
+        const handleScroll = () => {
+          setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
+
+      const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+      const scrollToSection = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          setIsMenuOpen(false);
+        }
+      };
+
+      const newsItems = [
+        { date: '2023.11.25', title: '【重要】ASO ROOTS CAFE 営業終了のお知らせ', link: '#' },
+        { date: '2023.11.01', title: '11月の出店スケジュールを更新しました', link: '#' },
+        { date: '2023.10.15', title: '秋季限定「マロンと胡桃のサンド」販売開始', link: '#' },
+      ];
+
+      return (
+        <div className="font-sans text-[#4a4a4a] bg-white tracking-wide">
+
+          {/* Header */}
+          <header className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/95 shadow-sm py-4' : 'bg-transparent py-6'}`}>
+            <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+              {/* Logo */}
+              <div
+                className="cursor-pointer z-50"
+                onClick={() => scrollToSection('top')}
+              >
+                <h1 className={`text-xl md:text-2xl font-bold tracking-widest flex items-center gap-2 ${scrolled ? 'text-[#3d5a3d]' : 'text-[#3d5a3d] md:text-white'}`}>
+                  <span className="font-serif">阿蘇とコーヒーを</span>
+                  <span className="text-xs md:text-sm font-normal opacity-80 block md:inline mt-1 md:mt-0">- ASO ROOTS CAFE -</span>
+                </h1>
+              </div>
+
+              {/* Desktop Nav */}
+              <nav className={`hidden md:flex items-center space-x-10 text-sm font-medium ${scrolled ? 'text-[#4a4a4a]' : 'text-white'}`}>
+                {['Concept', 'Menu', 'Archive', 'Access'].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => scrollToSection(item.toLowerCase())}
+                    className="hover:opacity-70 transition-opacity uppercase tracking-wider"
+                  >
+                    {item}
+                  </button>
+                ))}
+                <a href="#" className="hover:opacity-70 transition-opacity">
+                  <InstagramIcon size={20} />
+                </a>
+              </nav>
+
+              {/* Mobile Menu Button */}
+              <button
+                className="md:hidden z-50 text-[#3d5a3d]"
+                onClick={toggleMenu}
+              >
+                {isMenuOpen ? <XIcon size={28} /> : <MenuIcon size={28} />}
+              </button>
+            </div>
+
+            {/* Mobile Nav Overlay */}
+            <div className={`fixed inset-0 bg-[#f4f7f4] z-40 transform transition-transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:hidden flex flex-col justify-center items-center`}>
+              <div className="flex flex-col space-y-8 text-center">
+                {['Concept', 'Menu', 'Archive', 'Access'].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => scrollToSection(item.toLowerCase())}
+                    className="text-2xl font-serif text-[#3d5a3d] hover:text-[#5a7d5a]"
+                  >
+                    {item}
+                  </button>
+                ))}
+                <div className="pt-8 border-t border-[#dcebdc] w-12 mx-auto">
+                  <InstagramIcon size={32} className="text-[#3d5a3d] mx-auto" />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Hero Section */}
+          <section id="top" className="relative h-screen min-h-[600px] w-full overflow-hidden">
+            <div className="absolute inset-0">
+              <img
+                src="aso.png"
+                alt="阿蘇の森とキッチンカー"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/10"></div>
+            </div>
+
+            <div className="absolute bottom-10 md:bottom-20 left-6 md:left-20 text-white z-10">
+              <p className="text-sm md:text-base tracking-[0.2em] mb-4 border-l-2 border-white pl-4">2020 - </p>
+              <h2 className="text-4xl md:text-6xl font-serif font-bold leading-tight drop-shadow-lg">
+                阿蘇に溶け込む、<br />
+                空色のキッチンカー。
+              </h2>
+            </div>
+          </section>
+
+          {/* News / Archive Notice */}
+          <section className="bg-[#f4f7f4] py-12 px-6">
+            <div className="container mx-auto max-w-5xl">
+              <div className="flex flex-col md:flex-row gap-8 md:items-start">
+                <div className="md:w-1/4">
+                  <h3 className="text-xl font-serif text-[#3d5a3d] font-bold border-b-2 border-[#3d5a3d] inline-block pb-1">News</h3>
+                  <p className="text-xs text-[#8a8a8a] mt-2">お知らせ</p>
+                </div>
+                <div className="md:w-3/4 space-y-4">
+                  {newsItems.map((item, index) => (
+                    <div key={index} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 border-b border-[#dcebdc] pb-3">
+                      <span className="text-sm font-medium text-[#3d5a3d] opacity-80">{item.date}</span>
+                      <a href={item.link} className="hover:text-[#3d5a3d] hover:underline transition-colors text-sm md:text-base">
+                        {item.title}
+                      </a>
+                    </div>
+                  ))}
+                  <div className="text-right pt-2">
+                    <a href="#" className="text-xs text-[#3d5a3d] flex items-center justify-end gap-1 hover:opacity-70">
+                      VIEW ALL <ChevronRightIcon size={14} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Concept Section */}
+          <section id="concept" className="py-24 px-6 md:px-12 bg-white">
+            <div className="container mx-auto max-w-6xl">
+              <div className="flex flex-col md:flex-row-reverse items-center gap-16">
+
+                {/* Image Side */}
+                <div className="w-full md:w-1/2 relative">
+                  <div className="aspect-[3/4] overflow-hidden rounded-sm">
+                    <img
+                      src="girl.png"
+                      alt="オーガニックコーヒーと緑"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                    />
+                  </div>
+                  <div className="absolute -bottom-6 -left-6 bg-[#f4f7f4] p-6 z-10 hidden md:block">
+                    <span className="text-[#3d5a3d] font-serif italic text-lg">Miho Yamamoto</span>
+                  </div>
+                </div>
+
+                {/* Text Side */}
+                <div className="w-full md:w-1/2 flex justify-center md:justify-end">
+                  <div className="writing-vertical-md text-left md:h-[400px] leading-loose tracking-widest text-[#4a4a4a]">
+                    <h3 className="text-2xl md:text-3xl font-serif text-[#3d5a3d] font-bold mb-8 md:mb-0 md:ml-12">
+                      体と心に、<br />
+                      優しい深呼吸を。
+                    </h3>
+                    <p className="text-sm md:text-base mt-6 md:mt-0 md:ml-8 leading-8 md:leading-10">
+                      オーガニックや自然栽培の素材にこだわり、<br />
+                      阿蘇の雄大な自然の中でコーヒーを淹れる。<br />
+                      そんなシンプルな贅沢をお届け。
+                    </p>
+                    <p className="text-sm md:text-base mt-6 md:mt-0 md:ml-8 leading-8 md:leading-10">
+                      特定の場所を持たない空色のキッチンカー。<br />
+                      今日という日が、豊かになりますように。
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          {/* Menu Section */}
+          <section id="menu" className="py-24 px-6 bg-[#f9fbf9]">
+            <div className="container mx-auto max-w-4xl">
+              <div className="text-center mb-16">
+                <h3 className="text-3xl font-serif text-[#3d5a3d] font-bold">Menu</h3>
+                <p className="text-xs tracking-widest mt-3 text-[#8a8a8a] uppercase">Menu</p>
+                <div className="w-8 h-0.5 bg-[#3d5a3d] mx-auto mt-6"></div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-16">
+                {/* Drink Column */}
+                <div>
+                  <h4 className="text-lg font-bold text-[#3d5a3d] mb-6 flex items-center gap-2">
+                    <CoffeeIcon size={18} /> Organic Coffee
+                  </h4>
+                  <ul className="space-y-6">
+                    {[
+                      { name: '有機ブレンドコーヒー', price: '¥500', sub: 'HOT / ICE' },
+                      { name: '阿蘇ジャージー牛乳カフェラテ', price: '¥600', sub: 'HOT / ICE' },
+                      { name: 'デカフェ有機コーヒー', price: '¥550', sub: 'カフェインレス' },
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex justify-between items-baseline border-b border-[#e2e8e2] pb-2 group hover:border-[#3d5a3d] transition-colors">
+                        <div>
+                          <span className="block font-medium text-[#4a4a4a] group-hover:text-[#3d5a3d] transition-colors">{item.name}</span>
+                          <span className="text-xs text-[#8a8a8a]">{item.sub}</span>
+                        </div>
+                        <span className="font-serif font-medium">{item.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-12">
+                    <h4 className="text-lg font-bold text-[#3d5a3d] mb-6 flex items-center gap-2">
+                      Others
+                    </h4>
+                    <ul className="space-y-6">
+                      {[
+                        { name: '季節のフルーツ酵素ソーダ', price: '¥600' },
+                        { name: 'キッズ有機アップル', price: '¥300' },
+                      ].map((item, idx) => (
+                        <li key={idx} className="flex justify-between items-baseline border-b border-[#e2e8e2] pb-2 group hover:border-[#3d5a3d] transition-colors">
+                          <span className="block font-medium text-[#4a4a4a] group-hover:text-[#3d5a3d] transition-colors">{item.name}</span>
+                          <span className="font-serif font-medium">{item.price}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Food Column */}
+                <div>
+                  <div className="space-y-8">
+                    <div className="bg-white p-6 shadow-sm border border-[#e2e8e2]">
+                      <img
+                        src="pasuta.png"
+                        alt="ホットサンド"
+                        className="w-full h-48 object-cover mb-4 grayscale-[20%]"
+                      />
+                      <div className="flex justify-between items-center mb-2">
+                        <h5 className="font-bold text-[#3d5a3d]">阿蘇あか牛のボロネーゼ</h5>
+                        <span className="font-serif">¥950</span>
+                      </div>
+                      <p className="text-sm text-[#6a6a6a] leading-relaxed">
+                        じっくり煮込んだあか牛。不動の一番人気メニュー。
+                      </p>
+                    </div>
+
+                    <ul className="space-y-6">
+                      {[
+                        { name: '地元野菜のホットサンド', price: '¥650', desc: '季節野菜7種・ヴィーガン対応' },
+                        { name: 'ハニーマスタードチキン', price: '¥900', desc: '阿蘇ハーブ鶏使用' },
+                      ].map((item, idx) => (
+                        <li key={idx} className="border-b border-[#e2e8e2] pb-4">
+                          <div className="flex justify-between items-baseline mb-1">
+                            <span className="font-medium text-[#4a4a4a]">{item.name}</span>
+                            <span className="font-serif font-medium">{item.price}</span>
+                          </div>
+                          <p className="text-xs text-[#8a8a8a]">{item.desc}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Archive / Access Section */}
+          <section id="archive" className="py-24 px-6 bg-white">
+            <div className="container mx-auto max-w-5xl flex flex-col md:flex-row gap-12">
+
+              <div className="md:w-1/2">
+                <h3 className="text-2xl font-serif text-[#3d5a3d] font-bold mb-8">Access</h3>
+                <div className="space-y-6 text-sm md:text-base leading-loose">
+                  <p>
+                    <strong className="block text-[#3d5a3d] mb-1">名称</strong>
+                    ASO ROOTS CAFE（アソルーツカフェ）
+                  </p>
+                  <p>
+                    <strong className="block text-[#3d5a3d] mb-1">活動拠点（2023年時点）</strong>
+                    熊本県阿蘇エリア全域<br />
+                    （草千里ヶ浜、大観峰、道の駅阿蘇 など）
+                  </p>
+                  <p>
+                    <strong className="block text-[#3d5a3d] mb-1">営業時間</strong>
+                    Instagramにて発信中
+                  </p>
+                  <p>
+                    <strong className="block text-[#3d5a3d] mb-1">お問い合わせ</strong>
+                    現在は営業を終了しております。<br />
+                  </p>
+
+                  <div className="pt-6">
+                    <a href="#" className="inline-flex items-center gap-2 bg-[#3d5a3d] text-white px-6 py-3 rounded-sm hover:bg-[#2d422d] transition-colors">
+                      <InstagramIcon size={18} /> Instagram Archive
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+ <div className="md:w-1/2 h-[400px] bg-[#f4f7f4] relative">
+                {/* Google Map Iframe */}
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13385.123573163135!2d131.0570098688593!3d32.9963691771612!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3541244778a75a13%3A0xd2d7c47437373478!2z5aSn6Kaz5bOw!5e0!3m2!1sja!2sjp!4v1770902130070!5m2!1sja!2sjp"
+                  className="w-full h-full border-0"
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Google Map"
+                ></iframe>
+              </div>
+
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="bg-[#3d5a3d] text-white py-12 px-6">
+            <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-center md:text-left">
+                <h2 className="text-xl font-serif tracking-widest mb-2">阿蘇とコーヒーを</h2>
+                <p className="text-xs opacity-70">ASO ROOTS CAFE</p>
+              </div>
+
+              <button
+                onClick={() => scrollToSection('top')}
+                className="flex items-center gap-2 text-xs opacity-80 hover:opacity-100 transition-opacity"
+              >
+                PAGE TOP <ArrowUpIcon size={14} />
+              </button>
+            </div>
+            <div className="container mx-auto mt-8 pt-8 border-t border-white/20 text-center text-[10px] tracking-wider opacity-60">
+              © 2020-2023 ASO ROOTS CAFE. All Rights Reserved.
+            </div>
+          </footer>
+        </div>
+      );
+    };
+
+    // ReactをDOMにレンダリング
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+
+</html>
